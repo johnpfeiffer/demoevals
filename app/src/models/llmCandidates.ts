@@ -1,8 +1,8 @@
 import { fitsFor } from './evalFit'
 import type { CandidateDefinition } from './evalLoop'
 
-// Live candidate source: Gemma 4 31B on Cerebras, via the dev-server proxy at
-// /api/cerebras (see vite.config.ts — the API key never reaches the browser).
+// Live candidate source: Gemma 4 31B on Cerebras, via the same-origin Pages
+// middleware route. The API key stays in the server-side Pages secret.
 // One request per loop step keeps the demo inside the free tier (5 req/min).
 
 export const LLM_MODEL = 'gemma-4-31b'

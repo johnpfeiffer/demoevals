@@ -190,7 +190,7 @@ function App() {
               {liveMode && llmError && (
                 <Alert severity="warning">
                   Live candidates unavailable ({llmError}). Showing the offline sampler instead. Check that
-                  CEREBRAS_API_KEY is set in the repository .env and restart the dev server.
+                  the Cerebras Pages Function has a CEREBRAS_API_KEY secret configured.
                 </Alert>
               )}
             </Stack>
