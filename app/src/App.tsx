@@ -31,6 +31,7 @@ import {
 } from './models/evalLoop'
 import { LLM_MODEL, fetchLlmCandidates } from './models/llmCandidates'
 import { fitsFor } from './models/evalFit'
+import Footer from './Footer'
 
 const theme = createTheme({
   palette: { mode: 'light' },
@@ -375,6 +376,8 @@ function App() {
               sx={{ alignItems: 'flex-start', m: 0 }}
             />
           </Paper>
+
+          <Footer />
         </Stack>
       </Box>
     </ThemeProvider>
