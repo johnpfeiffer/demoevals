@@ -18,7 +18,7 @@ describe('Footer', () => {
     expect(linkedin.getAttribute('rel')).toBe('noopener noreferrer')
 
     const github = links[1]
-    expect(github.getAttribute('href')).toBe('https://github.com/johnpfeiffer/aiewf')
+    expect(github.getAttribute('href')).toBe('https://github.com/johnpfeiffer/demoevals')
     expect(github.getAttribute('aria-label')).toBe('Source code on GitHub')
     expect(github.getAttribute('target')).toBe('_blank')
     expect(github.getAttribute('rel')).toBe('noopener noreferrer')

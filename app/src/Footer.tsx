@@ -19,7 +19,7 @@ export default function Footer() {
       </Link>
       {" "}
       <Link
-        href="https://github.com/johnpfeiffer/aiewf"
+        href="https://github.com/johnpfeiffer/demoevals"
         target="_blank"
         rel="noopener noreferrer"
         color="inherit"
