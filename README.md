@@ -31,9 +31,11 @@ falls back to the offline sampler.
 
 ## Local development
 
+Use Node 24.20.0, then install the committed dependency tree:
+
 ```sh
 cd app
-npm install
+npm ci
 npm run dev -- --host 0.0.0.0 --port 8080
 ```
 

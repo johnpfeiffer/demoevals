@@ -177,6 +177,7 @@ function App() {
                   />
                   {liveMode && (
                     <Tooltip
+                      describeChild
                       title={`For demo efficiency (and free-tier rate limits) the same ${LLM_MODEL} call that proposes candidates also judges them against each rubric. Self-judging risks self-preference bias; production systems typically use a separate judge call, often a different model. Off = the app's transparent lexicon rules score the fits instead.`}
                     >
                       <FormControlLabel
