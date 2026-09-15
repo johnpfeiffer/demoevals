@@ -2,7 +2,7 @@
 
 The app keeps the evaluation domain separate from the React view. There are
 two candidate sources: a transparent deterministic sampler (offline default)
-and a live LLM (`gemma-4-31b` on Cerebras). In both cases eval scoring and
+and a live Cerebras-hosted LLM selected by the backend. In both cases eval scoring and
 winner selection happen client-side in the models layer, so a viewer can trace
 exactly why one continuation wins.
 
@@ -10,7 +10,7 @@ exactly why one continuation wins.
 flowchart LR
   C[Current context] --> G{Candidate source}
   G -->|offline| D[Deterministic sampler]
-  G -->|live| L[gemma-4-31b via /api/cerebras proxy]
+  G -->|live| L[Cerebras LLM via /api/cerebras proxy]
   L --> F[Lexicon eval fit scoring]
   D --> R[Repeat gate optional]
   F --> R
@@ -31,8 +31,8 @@ lives in `functions/cerebras/` (`cerebras.mjs` provider client with
 injectable fetch, `worker.mjs` request validation/error mapping, `cors.mjs`
 for shared-domain mounting), tested via `node --test`; `app/worker/index.mjs`
 is thin glue that mounts the route and serves the built SPA as static assets.
-The key is a Worker secret and the route validates request shape (pinned
-model, clamped max_tokens, no streaming) so the public endpoint cannot be
+The key is a Worker secret and the route validates request shape (server-owned
+model selection, clamped max_tokens, no streaming) so the public endpoint cannot be
 repurposed. The client is identical in both environments. Live mode
 makes one structured-output request per loop step; eval sliders rescore the
 already-fetched candidates locally.
@@ -44,7 +44,7 @@ flowchart TD
   A[Open with red, blue] --> B[Inspect candidate base likelihood]
   B --> M{Toggle Live LLM?}
   M -->|off| C[Enable evals and set influence]
-  M -->|on| L[Fetch candidates from gemma-4-31b, spinner while waiting]
+  M -->|on| L[Fetch candidates from Cerebras, spinner while waiting]
   L --> C
   C --> D[See rescored candidate words]
   D --> E[Commit the winning word]
@@ -64,8 +64,9 @@ flowchart TD
 - `app/src/models/evalFit.ts` — rule-based (lexicon) evaluators that score any
   word's fit per eval, with a human-readable reason. The $0/instant evaluator
   class, in contrast to an LLM-as-judge.
-- `app/src/models/llmCandidates.ts` — builds the structured-output request,
-  parses/normalizes the response, fetches via the proxy. By default the
+- `app/src/models/llmCandidates.ts` — builds a model-agnostic structured-output
+  request, parses/normalizes the response, and fetches via the proxy. The backend
+  owns provider model selection. By default the
   generation prompt is neutral, so evals act purely as downstream selection
   pressure — which cannot inject a theme the model never proposes. A toggle
   in the prompt panel closes the auto-tuning loop: the steering block

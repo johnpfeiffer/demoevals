@@ -24,9 +24,9 @@ describe('llm candidate source', () => {
     expect(() => parseCandidateContent('{"unexpected": true}')).toThrow()
   })
 
-  it('requests strict structured output for the configured model', () => {
+  it('requests strict structured output without selecting the backend model', () => {
     const request = buildGenerationRequest(['red', 'blue'])
-    expect(request.model).toBe('gemma-4-31b')
+    expect(request).not.toHaveProperty('model')
     expect(request.response_format.json_schema.strict).toBe(true)
     expect(request.messages[1].content).toContain('red, blue')
   })

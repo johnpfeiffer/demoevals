@@ -29,7 +29,7 @@ import {
   type CandidateDefinition,
   type EvalId,
 } from './models/evalLoop'
-import { LLM_MODEL, fetchLlmCandidates } from './models/llmCandidates'
+import { fetchLlmCandidates } from './models/llmCandidates'
 import { fitsFor } from './models/evalFit'
 import Footer from './Footer'
 
@@ -166,7 +166,7 @@ function App() {
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ justifyContent: 'space-between', alignItems: { sm: 'center' } }}>
                 <Typography variant="body2" color="text.secondary">
                   {liveMode
-                    ? `Candidates come from ${LLM_MODEL} on Cerebras (one request per step). Eval fits are scored by ${judgeScoring ? 'the model as judge, in the same call — note it is judging its own proposals' : 'transparent lexicon rules ($0, but blind to words outside the lists)'}.`
+                    ? `Candidates come from a Cerebras-hosted LLM (one request per step). Eval fits are scored by ${judgeScoring ? 'the model as judge, in the same call — note it is judging its own proposals' : 'transparent lexicon rules ($0, but blind to words outside the lists)'}.`
                     : 'This mode uses a transparent, fixed candidate sampler rather than an API, so every score can be examined offline.'}
                 </Typography>
                 <Stack direction="row" spacing={1}>
@@ -178,7 +178,7 @@ function App() {
                   {liveMode && (
                     <Tooltip
                       describeChild
-                      title={`For demo efficiency (and free-tier rate limits) the same ${LLM_MODEL} call that proposes candidates also judges them against each rubric. Self-judging risks self-preference bias; production systems typically use a separate judge call, often a different model. Off = the app's transparent lexicon rules score the fits instead.`}
+                      title="For demo efficiency (and free-tier rate limits) the same LLM call that proposes candidates also judges them against each rubric. Self-judging risks self-preference bias; production systems typically use a separate judge call, often a different model. Off = the app's transparent lexicon rules score the fits instead."
                     >
                       <FormControlLabel
                         control={<Switch checked={judgeScoring} onChange={(event) => setJudgeScoring(event.target.checked)} />}
@@ -269,7 +269,7 @@ function App() {
                       size="small"
                       variant="outlined"
                       color={usingLlm ? 'success' : 'default'}
-                      label={usingLlm ? `live${steer ? '+steered' : ''}: ${LLM_MODEL}` : 'offline sampler'}
+                      label={usingLlm ? `live${steer ? '+steered' : ''}: Cerebras` : 'offline sampler'}
                     />
                   </Stack>
                   <Typography variant="body2" color="text.secondary">
@@ -281,17 +281,17 @@ function App() {
                 {loading && (
                   <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }} aria-live="polite">
                     <CircularProgress size={18} aria-label="Fetching live candidates" />
-                    <Typography variant="body2" color="text.secondary">Asking {LLM_MODEL} for candidates…</Typography>
+                    <Typography variant="body2" color="text.secondary">Asking Cerebras for candidates…</Typography>
                   </Stack>
                 )}
 
                 <Box sx={{ display: 'grid', gap: 1.75, opacity: loading ? 0.5 : 1 }}>
                   {candidates.map((candidate, index) => {
                     const unscored = activeEvals.length > 0 && activeEvals.every(({ id }) => candidate.fits[id] === 0)
-                    const wordSource = usingLlm ? `Proposed by ${LLM_MODEL}.` : 'Proposed by the app’s fixed sampler (not a model).'
+                    const wordSource = usingLlm ? 'Proposed by the live LLM.' : 'Proposed by the app’s fixed sampler (not a model).'
                     const fitSource =
                       candidate.fitSource === 'judge'
-                        ? `Eval fits judged by ${LLM_MODEL} in the same call.`
+                        ? 'Eval fits judged by the same live LLM call.'
                         : candidate.fitSource === 'lexicon'
                           ? 'Eval fits from the app’s word lists — a word outside the lists scores 0 even if it fits the theme.'
                           : 'Eval fits hand-authored in the app.'

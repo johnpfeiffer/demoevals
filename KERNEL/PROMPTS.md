@@ -51,3 +51,8 @@ So yes: given this SPA app build out this demonstration of the selection pressur
 Use CEREBRAS_API_KEY  in .env for Gemma4 (one of the best free/cheap open weight reasoning models)
 https://inference-docs.cerebras.ai/models/gemma-4-31b
 
+---
+Cerebras deprecated Gemma4, this frontend shouldn't care about the details supplied by the monorepo platform.
+
+Implement the new shared Cerebras contract: Requests no longer include a model field, the backend injects CEREBRAS_MODEL or its default.
+

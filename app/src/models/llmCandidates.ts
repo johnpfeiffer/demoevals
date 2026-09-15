@@ -1,11 +1,9 @@
 import { fitsFor } from './evalFit'
 import type { CandidateDefinition } from './evalLoop'
 
-// Live candidate source: Gemma 4 31B on Cerebras, via the same-origin Pages
-// middleware route. The API key stays in the server-side Pages secret.
-// One request per loop step keeps the demo inside the free tier (5 req/min).
+// Live candidates come from a Cerebras-hosted model selected by the backend.
+// The frontend owns the generation request, but not provider configuration.
 
-export const LLM_MODEL = 'gemma-4-31b'
 const ENDPOINT = '/api/cerebras/chat/completions'
 export const CANDIDATE_COUNT = 6
 
@@ -14,7 +12,6 @@ export function buildGenerationRequest(context: string[], steering = '') {
     ? `\n\nApply these preferences when proposing candidates:\n${steering}`
     : ''
   return {
-    model: LLM_MODEL,
     temperature: 1.0,
     top_p: 0.95,
     max_tokens: 500,
