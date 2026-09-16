@@ -2,15 +2,15 @@
 
 The app keeps the evaluation domain separate from the React view. There are
 two candidate sources: a transparent deterministic sampler (offline default)
-and a live Cerebras-hosted LLM selected by the backend. In both cases eval scoring and
-winner selection happen client-side in the models layer, so a viewer can trace
-exactly why one continuation wins.
+and a Live LLM accessed through a backend-selected OpenAI-compatible provider.
+In both cases eval scoring and winner selection happen client-side in the
+models layer, so a viewer can trace exactly why one continuation wins.
 
 ```mermaid
 flowchart LR
   C[Current context] --> G{Candidate source}
   G -->|offline| D[Deterministic sampler]
-  G -->|live| L[Cerebras LLM via /api/cerebras proxy]
+  G -->|live| L[Live LLM via /api/openai proxy]
   L --> F[Lexicon eval fit scoring]
   D --> R[Repeat gate optional]
   F --> R
@@ -23,18 +23,14 @@ flowchart LR
   E --> P[Auto-tuned prompt preview]
 ```
 
-The Vite dev/preview server proxies `/api/cerebras/*` to
-`https://api.cerebras.ai/v1` and injects `CEREBRAS_API_KEY` from the
-repository root `.env`, keeping the key out of the client bundle. In
-production the same path is served by a Cloudflare Worker: the backend logic
-lives in `functions/cerebras/` (`cerebras.mjs` provider client with
-injectable fetch, `worker.mjs` request validation/error mapping, `cors.mjs`
-for shared-domain mounting), tested via `node --test`; `app/worker/index.mjs`
-is thin glue that mounts the route and serves the built SPA as static assets.
-The key is a Worker secret and the route validates request shape (server-owned
-model selection, clamped max_tokens, no streaming) so the public endpoint cannot be
-repurposed. The client is identical in both environments. Live mode
-makes one structured-output request per loop step; eval sliders rescore the
+The frontend posts a model-free OpenAI Chat Completions request to the
+same-origin `/api/openai/chat/completions` route. The shared deployment backend
+keeps `OPENAI_API_BASE`, `OPENAI_API_KEY`, and `OPENAI_MODEL` server-side,
+injects the selected model, and enforces
+`metadata.completion_window = "balanced"`. No provider configuration enters
+the browser bundle. The standard response includes the actual model at the top
+level and generated content at `choices[0].message.content`. Live mode makes
+one structured-output request per loop step; eval sliders rescore the
 already-fetched candidates locally.
 
 ## User journey
@@ -44,7 +40,7 @@ flowchart TD
   A[Open with red, blue] --> B[Inspect candidate base likelihood]
   B --> M{Toggle Live LLM?}
   M -->|off| C[Enable evals and set influence]
-  M -->|on| L[Fetch candidates from Cerebras, spinner while waiting]
+  M -->|on| L[Fetch candidates from Live LLM, spinner while waiting]
   L --> C
   C --> D[See rescored candidate words]
   D --> E[Commit the winning word]
@@ -65,8 +61,9 @@ flowchart TD
   word's fit per eval, with a human-readable reason. The $0/instant evaluator
   class, in contrast to an LLM-as-judge.
 - `app/src/models/llmCandidates.ts` — builds a model-agnostic structured-output
-  request, parses/normalizes the response, and fetches via the proxy. The backend
-  owns provider model selection. By default the
+  request, parses/normalizes the standard Chat Completions response, and
+  fetches via the shared proxy. The backend owns provider and model selection.
+  By default the
   generation prompt is neutral, so evals act purely as downstream selection
   pressure — which cannot inject a theme the model never proposes. A toggle
   in the prompt panel closes the auto-tuning loop: the steering block

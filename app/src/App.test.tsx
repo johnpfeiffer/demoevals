@@ -45,6 +45,7 @@ describe('evaluation loop UI', () => {
     render(<App />)
     fireEvent.click(screen.getByRole('switch', { name: 'Live LLM' }))
     expect(screen.getByRole('progressbar', { name: 'Fetching live candidates' })).toBeTruthy()
+    expect(screen.getAllByText('Live LLM')).toHaveLength(2)
     expect((screen.getByRole('button', { name: 'Choose “green”' }) as HTMLButtonElement).disabled).toBe(true)
 
     await act(async () => {

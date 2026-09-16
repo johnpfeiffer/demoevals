@@ -1,10 +1,10 @@
 import { fitsFor } from './evalFit'
 import type { CandidateDefinition } from './evalLoop'
 
-// Live candidates come from a Cerebras-hosted model selected by the backend.
-// The frontend owns the generation request, but not provider configuration.
+// Live candidates come from an OpenAI-compatible provider selected by the
+// shared backend. The frontend owns generation input, not provider config.
 
-const ENDPOINT = '/api/cerebras/chat/completions'
+const ENDPOINT = '/api/openai/chat/completions'
 export const CANDIDATE_COUNT = 6
 
 export function buildGenerationRequest(context: string[], steering = '') {
@@ -117,12 +117,13 @@ export async function fetchLlmCandidates(
     body: JSON.stringify(buildGenerationRequest(context, steering)),
   })
   if (!response.ok) {
-    throw new Error(`Cerebras API error ${response.status}: ${(await response.text()).slice(0, 200)}`)
+    throw new Error(`LLM API error ${response.status}: ${(await response.text()).slice(0, 200)}`)
   }
   const payload = (await response.json()) as {
+    model?: string
     choices?: { message?: { content?: string } }[]
   }
   const content = payload.choices?.[0]?.message?.content
-  if (!content) throw new Error('Cerebras API returned no message content')
+  if (!content) throw new Error('LLM API returned no message content')
   return parseCandidateContent(content)
 }

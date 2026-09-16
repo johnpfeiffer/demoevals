@@ -166,7 +166,7 @@ function App() {
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ justifyContent: 'space-between', alignItems: { sm: 'center' } }}>
                 <Typography variant="body2" color="text.secondary">
                   {liveMode
-                    ? `Candidates come from a Cerebras-hosted LLM (one request per step). Eval fits are scored by ${judgeScoring ? 'the model as judge, in the same call — note it is judging its own proposals' : 'transparent lexicon rules ($0, but blind to words outside the lists)'}.`
+                    ? `Candidates come from a Live LLM through an OpenAI-compatible provider (one request per step). Eval fits are scored by ${judgeScoring ? 'the model as judge, in the same call — note it is judging its own proposals' : 'transparent lexicon rules ($0, but blind to words outside the lists)'}.`
                     : 'This mode uses a transparent, fixed candidate sampler rather than an API, so every score can be examined offline.'}
                 </Typography>
                 <Stack direction="row" spacing={1}>
@@ -178,7 +178,7 @@ function App() {
                   {liveMode && (
                     <Tooltip
                       describeChild
-                      title="For demo efficiency (and free-tier rate limits) the same LLM call that proposes candidates also judges them against each rubric. Self-judging risks self-preference bias; production systems typically use a separate judge call, often a different model. Off = the app's transparent lexicon rules score the fits instead."
+                      title="For demo efficiency the same LLM call that proposes candidates also judges them against each rubric. Self-judging risks self-preference bias; production systems typically use a separate judge call, often a different model. Off = the app's transparent lexicon rules score the fits instead."
                     >
                       <FormControlLabel
                         control={<Switch checked={judgeScoring} onChange={(event) => setJudgeScoring(event.target.checked)} />}
@@ -192,7 +192,7 @@ function App() {
               {liveMode && llmError && (
                 <Alert severity="warning">
                   Live candidates unavailable ({llmError}). Showing the offline sampler instead. Check that
-                  the Cerebras Pages Function has a CEREBRAS_API_KEY secret configured.
+                  the deployment backend has OPENAI_API_BASE, OPENAI_API_KEY, and OPENAI_MODEL configured server-side.
                 </Alert>
               )}
             </Stack>
@@ -269,7 +269,7 @@ function App() {
                       size="small"
                       variant="outlined"
                       color={usingLlm ? 'success' : 'default'}
-                      label={usingLlm ? `live${steer ? '+steered' : ''}: Cerebras` : 'offline sampler'}
+                      label={liveMode && !llmError ? `Live LLM${steer ? ' + steered' : ''}` : 'offline sampler'}
                     />
                   </Stack>
                   <Typography variant="body2" color="text.secondary">
@@ -281,7 +281,7 @@ function App() {
                 {loading && (
                   <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }} aria-live="polite">
                     <CircularProgress size={18} aria-label="Fetching live candidates" />
-                    <Typography variant="body2" color="text.secondary">Asking Cerebras for candidates…</Typography>
+                    <Typography variant="body2" color="text.secondary">Asking the Live LLM for candidates…</Typography>
                   </Stack>
                 )}
 

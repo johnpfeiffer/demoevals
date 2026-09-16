@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildGenerationRequest, parseCandidateContent } from './llmCandidates'
+import { buildGenerationRequest, fetchLlmCandidates, parseCandidateContent } from './llmCandidates'
 
 describe('llm candidate source', () => {
   it('normalizes a structured-output response into candidate definitions', () => {
@@ -55,5 +55,41 @@ describe('llm candidate source', () => {
     const steered = buildGenerationRequest(['red', 'blue'], '- Prefer americana continuations (influence: 100%).')
     expect(steered.messages[1].content).toContain('americana')
     expect(buildGenerationRequest(['red', 'blue']).messages[1].content).not.toContain('preferences')
+  })
+
+  it('fetches from the shared model-free endpoint and parses standard chat content', async () => {
+    let requestedUrl: RequestInfo | URL | undefined
+    let requestedInit: RequestInit | undefined
+    const fetchMock: typeof fetch = async (url, init) => {
+      requestedUrl = url
+      requestedInit = init
+      return new Response(JSON.stringify({
+        model: 'provider-selected-model',
+        choices: [{
+          message: {
+            content: JSON.stringify({
+              candidates: [{
+                word: 'violet',
+                plausibility: 73,
+                fits: { logical: 81, americana: 2, science: 64 },
+              }],
+            }),
+          },
+        }],
+      }))
+    }
+
+    const candidates = await fetchLlmCandidates(['red', 'blue'], '', fetchMock)
+    const requestBody = JSON.parse(String(requestedInit?.body))
+
+    expect(requestedUrl).toBe('/api/openai/chat/completions')
+    expect(requestBody).not.toHaveProperty('model')
+    expect(requestBody).not.toHaveProperty('metadata')
+    expect(candidates).toEqual([{
+      word: 'violet',
+      base: 73,
+      fits: { logical: 81, americana: 2, science: 64 },
+      fitSource: 'judge',
+    }])
   })
 })
