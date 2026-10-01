@@ -31,7 +31,7 @@ import {
 } from './models/evalLoop'
 import { fetchLlmCandidates } from './models/llmCandidates'
 import { fitsFor } from './models/evalFit'
-import Footer from './Footer'
+import { SiteFooter } from 'johnutilsjs/ui'
 
 const theme = createTheme({
   palette: { mode: 'light' },
@@ -378,7 +378,7 @@ function App() {
             />
           </Paper>
 
-          <Footer />
+          <SiteFooter repo="demoevals" />
         </Stack>
       </Box>
     </ThemeProvider>

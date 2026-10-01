@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
 import { render } from '@testing-library/react'
-import Footer from './Footer'
+import { SiteFooter } from 'johnutilsjs/ui'
 
-describe('Footer', () => {
-  it('renders the built-by line with LinkedIn and GitHub links', () => {
-    const { container } = render(<Footer />)
+describe('SiteFooter (shared johnutilsjs footer)', () => {
+  it('renders the built-by line with LinkedIn and GitHub links to this repo', () => {
+    const { container } = render(<SiteFooter repo="demoevals" />)
     expect(container.textContent).toContain('Built by John Pfeiffer')
 
     const links = container.querySelectorAll('a')
