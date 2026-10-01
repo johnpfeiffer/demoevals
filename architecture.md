@@ -17,7 +17,7 @@ flowchart LR
   R --> S[Score candidates]
   E[Enabled evals and weights] --> S
   S --> V[React visual interface]
-  V --> FOOT[Footer: built-by line + LinkedIn / GitHub source links]
+  V --> FOOT[SiteFooter (johnutilsjs/ui): built-by line + LinkedIn / GitHub source links]
   S --> W[Winning word]
   W --> C
   E --> P[Auto-tuned prompt preview]
@@ -45,7 +45,7 @@ flowchart TD
   C --> D[See rescored candidate words]
   D --> E[Commit the winning word]
   E --> F[Expanded context feeds the next loop, live mode refetches]
-  F --> G[Footer credits the author and links to the source]
+  F --> G[SiteFooter credits the author and links to the source]
 ```
 
 ## Modules
@@ -72,7 +72,8 @@ flowchart TD
   (offline sampler / live / live+steered).
 - `app/src/App.tsx` — interactive state and rendering only; owns the
   source toggle, loading and error states.
-- `app/src/Footer.tsx` — pure presentational footer rendered at the bottom
-  of the page; a "Built by John Pfeiffer" line with LinkedIn and GitHub
-  source links (`@mui/icons-material` marks). Covered by a jsdom component
-  test (`Footer.test.tsx`).
+- The footer is the shared `SiteFooter` from `johnutilsjs/ui`, rendered at
+  the bottom of the page in `App.tsx`; a centered "Built by John Pfeiffer"
+  line with LinkedIn and GitHub source links. The app passes
+  `repo="demoevals"` so the GitHub link points at this repository. Covered
+  by a jsdom component test (`siteFooter.test.tsx`).
